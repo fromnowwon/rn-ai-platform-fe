@@ -1,6 +1,7 @@
 import { LoginRequest, LoginResponse } from "@/types/auth";
 import { APIResult } from "@/types/common/api";
 import { Platform } from "react-native";
+import { TokenService } from "./tokenService";
 
 const API_URL =
   Platform.OS === "web"
@@ -23,6 +24,13 @@ export async function login(
     });
 
     const data = await res.json();
+
+    if (data.success) {
+      const token = data.data.token;
+
+      await TokenService.save(token);
+    }
+
     return data;
   } catch (err: any) {
     // 서버까지 요청이 도달하지 못했거나, 서버 응답이 아예 없는 경우
