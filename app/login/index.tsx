@@ -2,20 +2,24 @@ import { useState } from "react";
 import { useRouter } from "expo-router";
 import { Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import SafeAreaWrapper from "@/components/ui/atoms/SafeAreaWrapper";
+import useLogin from "@/hooks/auth/useLogin";
 
 export default function LoginScreen() {
+  const { doLogin, isLoading } = useLogin();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const router = useRouter();
 
-  const handleLogin = () => {
-    if (!email || !password) {
-      Alert.alert("Error", "이메일과 비밀번호를 입력해주세요.");
+  const handleLogin = async () => {
+    const result = await doLogin({ email, password });
+
+    if (!result.success) {
+      Alert.alert("로그인 실패", result.message);
       return;
     }
-    // TODO: 백엔드 API 연동
-    Alert.alert("Success", `로그인 시도: ${email}`);
+
+    Alert.alert("로그인 성공", "로그인에 성공했습니다.");
   };
 
   return (
@@ -46,7 +50,7 @@ export default function LoginScreen() {
         onPress={handleLogin}
       >
         <Text className="text-center text-white text-lg font-semibold">
-          로그인
+          {isLoading ? "로딩 중..." : "로그인"}
         </Text>
       </TouchableOpacity>
 
