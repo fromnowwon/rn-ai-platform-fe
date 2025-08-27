@@ -1,14 +1,23 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "expo-router";
-import { Text, Alert, View } from "react-native";
+import {
+  Text,
+  Alert,
+  View,
+  TextInput,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import SafeAreaWrapper from "@/components/ui/atoms/SafeAreaWrapper";
 import useLogin from "@/hooks/auth/useLogin";
-import { Button, Input, TextButton } from "@/components/ui";
 
 export default function LoginScreen() {
   const { doLogin, isLoading } = useLogin();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const passwordRef = useRef<any>(null);
 
   const router = useRouter();
 
@@ -20,34 +29,55 @@ export default function LoginScreen() {
       return;
     }
 
-    Alert.alert("로그인 성공", "로그인에 성공했습니다.");
+    router.replace("/");
   };
 
   return (
     <SafeAreaWrapper className="flex-1 justify-center items-center bg-white px-6">
       <Text className="text-3xl font-extrabold mb-8 text-gray-800">로그인</Text>
 
-      <Input value={email} onChange={setEmail} placeholder="이메일" />
-
-      <Input
-        value={password}
-        onChange={setPassword}
-        placeholder="비밀번호"
-        secureTextEntry
+      <TextInput
+        className="w-full border border-gray-300 rounded-xl p-4 mb-4 text-gray-800"
+        placeholder="이메일"
+        placeholderTextColor="#4B5563"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+        autoCapitalize="none"
+        returnKeyType="next"
+        onSubmitEditing={() => passwordRef.current?.focus()}
       />
 
-      <View className="w-full flex items-center mt-4">
-        <Button
-          onPress={handleLogin}
-          title={isLoading ? "로딩 중..." : "로그인"}
-          loading={isLoading}
-        />
+      <TextInput
+        className="w-full border border-gray-300 rounded-xl p-4 mb-6 text-gray-800"
+        placeholder="비밀번호"
+        placeholderTextColor="#4B5563"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+        ref={passwordRef}
+        returnKeyType="done"
+        onSubmitEditing={handleLogin}
+      />
 
-        <TextButton
-          title="회원가입"
-          className="text-blue-600 font-medium"
-          onPress={() => router.push("/signup")}
-        />
+      <View className="w-full flex items-center space-y-2 mt-4">
+        <TouchableOpacity
+          className="w-full bg-blue-600 rounded-xl py-4 mb-4"
+          onPress={handleLogin}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text className="text-center text-white text-lg font-semibold">
+              로그인
+            </Text>
+          )}
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => router.push("/signup")}>
+          <Text className="text-blue-600 font-medium text-lg">회원가입</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaWrapper>
   );
